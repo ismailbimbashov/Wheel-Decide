@@ -1,0 +1,94 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+}
+
+#wheelContainer {
+    position: relative;
+    width: 400px;
+    height: 400px;
+}
+
+#myCanvas {
+    width: 100%;
+    height: 100%;
+    transform-origin: center; /* Ensure canvas spins around its center */
+}
+
+#spinButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centers the button */
+    width: 80px;
+    height: 80px;
+    background-color: rgb(255, 255, 255);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    font-size: 22px;
+    cursor: pointer;
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+    background-image: linear-gradient(45deg, #2b69ed, #930416);
+    background-size: 300% 300%;
+    animation: gradientAnimation 12s ease infinite;
+    z-index: 1; /* Ensures the button is above the canvas */
+}
+
+#addSegmentButton{
+    color: aliceblue;
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+    background-image: linear-gradient(45deg, #919900, #930476);
+    background-size: 300% 300%;
+    animation: gradientAnimation 12s ease infinite;
+    cursor: pointer;
+}
+
+#editSegmentButton{
+    color: aliceblue;
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+    background-image: linear-gradient(45deg, #009926, #930476);
+    background-size: 300% 300%;
+    animation: gradientAnimation 12s ease infinite;
+    cursor: pointer;
+}
+
+#deleteSegmentButton{
+    color: aliceblue;
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+    background-image: linear-gradient(45deg, #ee0707, #3709c2);
+    background-size: 300% 300%;
+    animation: gradientAnimation 12s ease infinite;
+    cursor: pointer;
+}
+
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+input, button {
+    margin-top: 10px;
+    margin-bottom: 17px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}

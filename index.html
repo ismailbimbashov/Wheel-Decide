@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" type="image/x-icon" href="cartoon-wheel-fortune-lottery-design-element-spinning-lucky-fortune-isolated-white-vector_90220-2554.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinning Wheel Game</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to the CSS file -->
+</head>
+<body>
+    <div id="wheelContainer">
+        <canvas id="myCanvas" width="400" height="400"></canvas>
+        <button id="spinButton"><i class="fa-solid fa-arrow-up"></i><br>Spin</button>
+    </div>
+
+    <div id="segmentNameDisplay" style="margin-top: 20px; font-size: 20px; color: #333;"></div> 
+
+    <input type="text" id="segmentText" placeholder="Enter segment text">
+    <button id="addSegmentButton">Add Segment</button>
+
+    <div class="controls">
+        <button id="editSegmentButton">Edit Segment</button>
+        <button id="deleteSegmentButton">Delete Segment</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
