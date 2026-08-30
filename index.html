@@ -2,28 +2,68 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="icon" type="image/x-icon" href="cartoon-wheel-fortune-lottery-design-element-spinning-lucky-fortune-isolated-white-vector_90220-2554.jpg">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Spin a customisable wheel to make a random choice. Add your own options and let the wheel decide.">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#2b69ed">
     <title>Spinning Wheel Game</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to the CSS file -->
+
+    <!-- Real PNGs at real sizes. The previous icon was an AVIF file named .jpg
+         and declared as image/x-icon: three formats disagreeing at once. -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+    <link rel="apple-touch-icon" href="favicon-180.png">
+
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="wheelContainer">
-        <canvas id="myCanvas" width="400" height="400"></canvas>
-        <button id="spinButton"><i class="fa-solid fa-arrow-up"></i><br>Spin</button>
-    </div>
+    <main class="page">
+        <h1>Spinning Wheel</h1>
 
-    <div id="segmentNameDisplay" style="margin-top: 20px; font-size: 20px; color: #333;"></div> 
+        <div id="wheelContainer">
+            <!-- role/aria-label give the wheel an accessible name; the fallback
+                 text inside is shown if canvas is unsupported. -->
+            <canvas id="myCanvas" width="400" height="400"
+                    role="img"
+                    aria-label="Prize wheel. Add segments below, then press Spin.">
+                Your browser does not support the canvas element, so the wheel cannot be displayed.
+            </canvas>
 
-    <input type="text" id="segmentText" placeholder="Enter segment text">
-    <button id="addSegmentButton">Add Segment</button>
+            <button type="button" id="spinButton">
+                <!-- Inline SVG replaces the whole Font Awesome CDN stylesheet,
+                     which was render-blocking and loaded for this one glyph. -->
+                <svg class="icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"
+                     fill="none" stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                    <path d="M12 19V5M5 12l7-7 7 7"/>
+                </svg>
+                <span>Spin</span>
+            </button>
+        </div>
 
-    <div class="controls">
-        <button id="editSegmentButton">Edit Segment</button>
-        <button id="deleteSegmentButton">Delete Segment</button>
-    </div>
+        <!-- role="status" + aria-live make the spin result announced by screen
+             readers. Without it the app's single most important output was silent. -->
+        <p id="segmentNameDisplay" role="status" aria-live="polite" aria-atomic="true"></p>
+
+        <div class="add-row">
+            <label for="segmentText">Segment text</label>
+            <input type="text" id="segmentText" name="segmentText"
+                   placeholder="e.g. Pizza" autocomplete="off" maxlength="40"
+                   enterkeyhint="done">
+            <!-- type="button" everywhere: these are not inside a form, and an
+                 implicit submit would reload the page out from under script.js. -->
+            <button type="button" id="addSegmentButton">Add Segment</button>
+        </div>
+
+        <div class="controls">
+            <button type="button" id="editSegmentButton">Edit Segment</button>
+            <button type="button" id="deleteSegmentButton">Delete Segment</button>
+        </div>
+
+        <noscript>
+            <p class="noscript">This wheel needs JavaScript enabled to run.</p>
+        </noscript>
+    </main>
 
     <script src="script.js"></script>
 </body>
