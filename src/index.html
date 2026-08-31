@@ -3,22 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Spin a customisable wheel to make a random choice. Add your own options and let the wheel decide.">
+    <meta name="description" content="Wheel Decider — add your options, spin the wheel, and let it make the choice for you.">
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#2b69ed">
-    <title>Spinning Wheel Game</title>
+    <title>Wheel Decider</title>
 
-    <!-- Real PNGs at real sizes. The previous icon was an AVIF file named .jpg
-         and declared as image/x-icon: three formats disagreeing at once. -->
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
-    <link rel="apple-touch-icon" href="favicon-180.png">
+    <!-- SVG first: browsers that support it scale one crisp file to every size.
+         The PNGs are the fallback, and 16x16 matters most — that is the size a
+         browser tab actually renders, and letting it downsample a 32px icon is
+         what turned the wheel into a grey smudge. -->
+    <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/favicon-48.png">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
 
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
     <main class="page">
-        <h1>Spinning Wheel</h1>
+        <h1>Wheel Decider</h1>
 
         <div id="wheelContainer">
             <!-- role/aria-label give the wheel an accessible name; the fallback
@@ -29,14 +33,12 @@
                 Your browser does not support the canvas element, so the wheel cannot be displayed.
             </canvas>
 
+            <!-- The winner marker. It sits OUTSIDE the canvas on purpose: the
+                 canvas itself is rotated during a spin, so a pointer drawn on
+                 it would turn with the wheel and never point at anything. -->
+            <div id="wheelPointer" aria-hidden="true"></div>
+
             <button type="button" id="spinButton">
-                <!-- Inline SVG replaces the whole Font Awesome CDN stylesheet,
-                     which was render-blocking and loaded for this one glyph. -->
-                <svg class="icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"
-                     fill="none" stroke="currentColor" stroke-width="2.5"
-                     stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                    <path d="M12 19V5M5 12l7-7 7 7"/>
-                </svg>
                 <span>Spin</span>
             </button>
         </div>
@@ -58,6 +60,9 @@
         <div class="controls">
             <button type="button" id="editSegmentButton">Edit Segment</button>
             <button type="button" id="deleteSegmentButton">Delete Segment</button>
+            <!-- Styled as a quiet outline button, not a third gradient: this
+                 resets the whole wheel rather than acting on one segment. -->
+            <button type="button" id="newWheelButton" class="btn-quiet">New Wheel</button>
         </div>
 
         <noscript>
@@ -65,6 +70,9 @@
         </noscript>
     </main>
 
-    <script src="script.js"></script>
+    <!-- type="module" so script.js can import the pure data layer from
+         core/storage.js. Modules are deferred and scoped, so nothing here
+         leaks onto window. -->
+    <script src="main.js" type="module"></script>
 </body>
 </html>

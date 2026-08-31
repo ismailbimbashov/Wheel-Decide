@@ -1,0 +1,14 @@
+{
+  "name": "wheel-decide",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A customisable spinning wheel that picks an option for you.",
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8000 --directory src",
+    "test": "node --test --experimental-test-coverage --test-coverage-lines=70 --test-coverage-branches=70 --test-coverage-functions=80"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
