@@ -2,13 +2,28 @@
   "name": "wheel-decide",
   "version": "1.0.0",
   "private": true,
-  "description": "A customisable spinning wheel that picks an option for you.",
+  "description": "Wheel Decider \u2014 add your options, spin the wheel, and let it make the choice for you.",
   "type": "module",
   "scripts": {
     "start": "python3 -m http.server 8000 --directory src",
-    "test": "node --test --experimental-test-coverage --test-coverage-lines=70 --test-coverage-branches=70 --test-coverage-functions=80"
+    "test": "npm run test:unit",
+    "test:unit": "node --test --experimental-test-coverage --test-coverage-lines=70 --test-coverage-branches=70 --test-coverage-functions=80 \"tests/unit/**/*.test.js\"",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "test:all": "npm run test:unit && npm run test:e2e"
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
+  },
+  "license": "MIT",
+  "author": "ismailbimbashov",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ismailbimbashov/Wheel-Decide.git"
   }
 }

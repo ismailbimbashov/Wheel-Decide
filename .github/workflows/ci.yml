@@ -15,12 +15,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: test (node ${{ matrix.node }})
+  # ── Fast gate. Pure-logic tests with enforced coverage floors; no browser,
+  #    so this reports in seconds and fails the build before e2e is paid for.
+  unit:
+    name: unit (node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
-      # Report BOTH versions rather than stopping at the first to fail.
-      fail-fast: false
+      fail-fast: false          # report BOTH versions, not just the first to fail
       matrix:
         node: ['22', '24']
     steps:
@@ -29,13 +30,71 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+          cache: npm
 
-      # No `npm ci` step: the suite uses node:test and node:assert, so the
-      # project has no dependencies and there is no lock file to install from.
+      - run: npm ci
 
-      # `npm test` carries the coverage thresholds
-      # (lines 70, branches 70, functions 80). Node exits non-zero when any
-      # threshold is unmet, so this step fails the build on a coverage
-      # regression as well as on a failing assertion.
-      - name: Run tests with coverage thresholds
-        run: npm test
+      # Carries --test-coverage-lines/branches/functions, so a coverage
+      # regression fails the build exactly like a failing assertion.
+      - name: Unit tests with coverage thresholds
+        run: npm run test:unit
+
+  # ── End-to-end. Costs a browser download, so it waits for the cheap gate.
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    needs: unit
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # Cache the browser binaries against the RESOLVED Playwright version, so
+      # a dependency bump invalidates the cache automatically.
+      - name: Resolve Playwright version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+
+      - name: Install browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      # A cache hit restores the binaries but not the OS libraries they link
+      # against, so those are installed either way.
+      - name: Install OS dependencies only (cache hit)
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+
+      # Uploaded on failure so a red run arrives with traces, screenshots and
+      # video already attached — no local reproduction needed.
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Upload traces and videos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: ignore

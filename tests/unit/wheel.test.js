@@ -8,7 +8,7 @@ import {
     COLORS, LABEL_INK,
     paletteFor, segmentArc, maxLabelWidth, fitFontSize, shouldFlipLabel,
     easeOutCubic, rotationAt, spinDelta, selectIndexAt,
-} from '../src/core/wheel.js';
+} from '../../src/core/wheel.js';
 
 // ── Colour assignment ────────────────────────────────────────────────────────
 
