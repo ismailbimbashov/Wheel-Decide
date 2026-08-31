@@ -23,7 +23,7 @@ import {
     clearStoredSegments,
     discardCorruptStorage,
     hydrateSegments,
-} from '../src/core/storage.js';
+} from '../../src/core/storage.js';
 
 // ── Test doubles ─────────────────────────────────────────────────────────────
 
