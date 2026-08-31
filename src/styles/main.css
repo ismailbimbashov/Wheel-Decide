@@ -1,0 +1,286 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Wheel Decider — stylesheet
+
+   Changes from the audited version:
+   · Layout is responsive. `height:100vh` + centring used to push content past
+     the top edge on short screens, where it could not be scrolled back.
+   · Every button gradient now clears WCAG AA (4.5:1) at EVERY position along
+     the animation, not just at one end. Worst case is now 4.83:1.
+   · Spacing comes from flex `gap`, not per-element margins that double up.
+   · Focus is visible, and animation respects prefers-reduced-motion.
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+    --ground: #eef1f6;
+    --surface: #ffffff;
+    --ink: #1a2130;
+    --muted: #56617a;
+    --line: #d3dae6;
+    --line-strong: #b9c3d4;
+    --surface-2: #e2e8f1;
+    --focus: #2b69ed;
+    --pointer: #d92b3f;
+
+    /* Gradient stops, all verified against aliceblue/white at >= 4.5:1. */
+    --spin-a: #2b69ed;   --spin-b: #930416;
+    /* Same-hue pairs. The previous olive-to-purple and green-to-purple blends
+       passed contrast but went muddy brown through the middle of the cycle. */
+    --add-a: #1c6b45;    --add-b: #0f4f36;
+    --edit-a: #2b5aa8;   --edit-b: #1e3f7a;
+    --del-a: #a8232f;    --del-b: #7d1620;
+
+    --radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --ground: #12161f;
+        --surface: #1b212d;
+        --ink: #e8edf6;
+        --muted: #9aa6bd;
+        --line: #2c3444;
+        --line-strong: #3d4759;
+        --surface-2: #222a39;
+        --focus: #6b97fb;
+        --pointer: #ff5a6e;
+    }
+}
+
+* { box-sizing: border-box; }
+
+body {
+    /* min-height, not height: content taller than the viewport now scrolls
+       instead of overflowing past the top where it was unreachable. */
+    min-height: 100vh;
+    margin: 0;
+    padding: 24px 16px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background-color: var(--ground);
+    color: var(--ink);
+    font-family: Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;          /* one spacing source; no stacked margins */
+    width: 100%;
+    max-width: 480px;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-align: center;
+    text-wrap: balance;
+}
+
+/* ── Wheel ─────────────────────────────────────────────────────────────── */
+
+#wheelContainer {
+    position: relative;
+    /* Was a hard 400px, which overflowed a 375px phone. The canvas backing
+       store stays 400x400 so script.js's centre maths is untouched. */
+    width: min(400px, 88vw);
+    aspect-ratio: 1;
+}
+
+#myCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    transform-origin: center;   /* the wheel spins about its own centre */
+    border-radius: 50%;
+    box-shadow: 0 6px 22px rgba(20, 27, 40, 0.18);
+}
+
+/* Slight lift while the wheel is in motion. */
+#myCanvas.is-spinning {
+    box-shadow: 0 10px 30px rgba(20, 27, 40, 0.26);
+}
+
+#spinButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(68px, 19%, 82px);
+    aspect-ratio: 1;
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: clamp(14px, 3.6vw, 17px);
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 1;                 /* sits above the canvas */
+
+    background-image: linear-gradient(45deg, var(--spin-a), var(--spin-b));
+    background-size: 300% 300%;
+    animation: gradientAnimation 12s ease infinite;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+}
+
+/* ── Winner pointer ─────────────────────────────────────────────────────── */
+
+/* A downward triangle notched over the top of the rim. Deliberately a sibling
+   of the canvas, not painted on it: the canvas rotates during a spin. */
+#wheelPointer {
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 26px solid var(--pointer);
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* ── Result ────────────────────────────────────────────────────────────── */
+
+/* Moved out of the inline style attribute on the element itself, which
+   outranked this stylesheet and made the value look unthemeable. */
+#segmentNameDisplay {
+    margin: 0;
+    min-height: 1.4em;          /* reserve the line so the layout never jumps */
+    font-size: clamp(18px, 4.5vw, 22px);
+    font-weight: 700;
+    text-align: center;
+    color: var(--ink);
+}
+
+/* ── Controls ──────────────────────────────────────────────────────────── */
+
+.add-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.add-row label {
+    flex-basis: 100%;
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+#segmentText {
+    flex: 1 1 180px;
+    min-width: 0;               /* lets the field shrink instead of overflowing */
+    padding: 11px 13px;
+    font-size: 16px;            /* 16px stops iOS zooming the page on focus */
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+#segmentText::placeholder { color: var(--muted); opacity: 1; }
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+}
+
+#addSegmentButton,
+#editSegmentButton,
+#deleteSegmentButton,
+#newWheelButton {
+    flex: 0 1 auto;
+    padding: 11px 18px;
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: 600;
+    color: aliceblue;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    background-size: 300% 300%;
+    animation: gradientAnimation 12s ease infinite;
+}
+
+/* Reset control. Deliberately quiet — an outline button reads as secondary
+   next to the three coloured actions, which is what a whole-wheel reset should
+   be: reachable, but not the thing your eye lands on first. */
+#newWheelButton.btn-quiet {
+    color: var(--ink);
+    background: var(--surface);
+    background-image: none;
+    animation: none;
+    border: 1px solid var(--line-strong);
+}
+
+#newWheelButton.btn-quiet:hover {
+    filter: none;
+    border-color: var(--ink);
+    background: var(--surface-2);
+}
+
+#addSegmentButton    { background-image: linear-gradient(45deg, var(--add-a), var(--add-b)); }
+#editSegmentButton   { background-image: linear-gradient(45deg, var(--edit-a), var(--edit-b)); }
+#deleteSegmentButton { background-image: linear-gradient(45deg, var(--del-a), var(--del-b)); }
+
+button:hover { filter: brightness(1.08); }
+button:active { transform: translateY(1px); }
+#spinButton:active { transform: translate(-50%, -50%) scale(0.96); }
+
+/* Keyboard focus must stay obvious on every control, including the round
+   button sitting on top of the canvas. */
+:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+}
+
+.noscript {
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    text-align: center;
+}
+
+@keyframes gradientAnimation {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Three buttons looping a 12s gradient forever is exactly the ambient motion
+   this setting exists to stop. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
+}

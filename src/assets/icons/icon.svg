@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Spinning wheel">
+  <!-- Purpose-drawn for small sizes. A tab favicon renders at 16px, where the
+       app's eight pastel slices collapse into grey mush: each slice is barely
+       two pixels wide and the pale fills carry almost no contrast against one
+       another. So this is deliberately reduced — four saturated quadrants,
+       a heavy rim to hold the silhouette on both light and dark tab bars,
+       and an oversized pointer that survives being two pixels tall. -->
+  <g>
+    <path d="M16 16 L6.81 6.81 A13 13 0 0 1 25.19 6.81 Z" fill="#f2b134"/>
+    <path d="M16 16 L25.19 6.81 A13 13 0 0 1 25.19 25.19 Z" fill="#2fae8f"/>
+    <path d="M16 16 L25.19 25.19 A13 13 0 0 1 6.81 25.19 Z" fill="#5b7ce0"/>
+    <path d="M16 16 L6.81 25.19 A13 13 0 0 1 6.81 6.81 Z" fill="#e8564e"/>
+  </g>
+
+  <circle cx="16" cy="16" r="13" fill="none" stroke="#232838" stroke-width="2.4"/>
+  <circle cx="16" cy="16" r="4.2" fill="#ffffff" stroke="#232838" stroke-width="2"/>
+
+  <!-- Pointer. Sits over the amber quadrant, never the red one, so it stays
+       legible when the whole icon is 16 pixels across. -->
+  <path d="M16 10.5 L10.6 1 L21.4 1 Z" fill="#c0182b" stroke="#ffffff" stroke-width="1.2" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# LEAST PRIVILEGE. This pipeline only reads code and runs tests. Without this
+# block GITHUB_TOKEN inherits the repository default, which on older repos is
+# read/write across every scope.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      # Report BOTH versions rather than stopping at the first to fail.
+      fail-fast: false
+      matrix:
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # No `npm ci` step: the suite uses node:test and node:assert, so the
+      # project has no dependencies and there is no lock file to install from.
+
+      # `npm test` carries the coverage thresholds
+      # (lines 70, branches 70, functions 80). Node exits non-zero when any
+      # threshold is unmet, so this step fails the build on a coverage
+      # regression as well as on a failing assertion.
+      - name: Run tests with coverage thresholds
+        run: npm test
